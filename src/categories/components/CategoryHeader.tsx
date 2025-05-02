@@ -1,21 +1,17 @@
 import Select from '@/src/shared/components/Select';
-import TextInput from '@/src/shared/components/TextInput';
 import { Heading } from '@/src/shared/components/typography/Heading';
 import { SortOption } from '@/src/shared/types';
-import { Search } from 'lucide-react';
 
 interface CategoryHeaderProps {
   selectedCategory: string;
-  searchTerm: string;
-  handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSort: (option: SortOption) => void;
+  children: React.ReactNode;
 }
 
 export default function CategoryHeader({
   selectedCategory,
-  searchTerm,
-  handleSearch,
   handleSort,
+  children,
 }: CategoryHeaderProps) {
   return (
     <div className="sticky top-0 bg-gray-50 z-10 py-4 border-b">
@@ -24,14 +20,7 @@ export default function CategoryHeader({
       </Heading>
 
       <div className="flex justify-between items-center mb-6">
-        <TextInput
-          placeholder="Search product"
-          icon={
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-          }
-          value={searchTerm}
-          onChange={handleSearch}
-        />
+        <div className="flex items-center gap-4">{children}</div>
 
         <div className="relative">
           <Select<SortOption>

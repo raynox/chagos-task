@@ -7,12 +7,18 @@ import CategoryTabs from '@/src/categories/components/CategoryTabs';
 import { useUniqueCategories } from '@/src/categories/hooks/useUniqueCategories';
 import ProductDetails from '@/src/products/components/ProductDetails';
 import ProductGrid from '@/src/products/components/ProductGrid';
+import useCategoryFilter from '@/src/products/hooks/useCategoryFilter';
 import { useFetchProducts } from '@/src/products/hooks/useFetchProducts';
-import useFileteredProducts from '@/src/products/hooks/useFileteredProducts';
 import { useHandleSort } from '@/src/products/hooks/useHandleSort';
+import usePriceFilter from '@/src/products/hooks/usePriceFilter';
+import useSearchFilter from '@/src/products/hooks/useSearchFilter';
 import { Product } from '@/src/products/types';
 import Header from '@/src/shared/components/Header';
-import { useState } from 'react';
+import PriceRangeFilter from '@/src/shared/components/PriceRangeFilter';
+import TextInput from '@/src/shared/components/TextInput';
+import { extractPriceFromString } from '@/src/shared/lib/extractPriceFromString';
+import { Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function Home() {
   const { products, loading } = useFetchProducts();
@@ -20,19 +26,42 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(0);
   const { sortedProducts, handleSort } = useHandleSort(products);
 
-  const { filteredProducts } = useFileteredProducts(
-    sortedProducts,
-    searchTerm,
-    selectedCategory,
-    cartItems
-  );
+  const categoryProducts = useCategoryFilter(sortedProducts, selectedCategory);
+  let filteredProducts = useSearchFilter(categoryProducts, searchTerm);
+  filteredProducts = usePriceFilter(filteredProducts, minPrice, maxPrice);
+
+  const minProductPrice = useMemo(() => {
+    return Math.min(...categoryProducts.map((product) => extractPriceFromString(product.price)));
+  }, [categoryProducts]);
+
+  const maxProductPrice = useMemo(() => {
+    return Math.max(...categoryProducts.map((product) => extractPriceFromString(product.price)));
+  }, [categoryProducts]);
+
+  useEffect(() => {
+    setMinPrice(minProductPrice);
+  }, [minProductPrice]);
+
+  useEffect(() => {
+    setMaxPrice(maxProductPrice);
+  }, [maxProductPrice]);
 
   const { categories } = useUniqueCategories(products, setSelectedCategory);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleMinPriceChange = (value: number) => {
+    setMinPrice(value);
+  };
+
+  const handleMaxPriceChange = (value: number) => {
+    setMaxPrice(value);
   };
 
   const closeProductDetails = () => {
@@ -54,12 +83,25 @@ export default function Home() {
               onCategoryChange={setSelectedCategory}
             />
 
-            <CategoryHeader
-              selectedCategory={selectedCategory}
-              searchTerm={searchTerm}
-              handleSearch={handleSearch}
-              handleSort={handleSort}
-            />
+            <CategoryHeader selectedCategory={selectedCategory} handleSort={handleSort}>
+              <TextInput
+                placeholder="Search product"
+                icon={
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                }
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+
+              <PriceRangeFilter
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                min={minProductPrice}
+                max={maxProductPrice}
+                onMinPriceChange={handleMinPriceChange}
+                onMaxPriceChange={handleMaxPriceChange}
+              />
+            </CategoryHeader>
 
             <ProductGrid
               products={filteredProducts}
