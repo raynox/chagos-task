@@ -1,5 +1,6 @@
 'use client';
 
+import CompareButton from '@/src/compare/components/CompareButton';
 import type { Product } from '@/src/products/types';
 import Rating from '@/src/shared/components/Rating';
 import SquareButton from '@/src/shared/components/SquareButton';
@@ -7,6 +8,7 @@ import SquareImage from '@/src/shared/components/SquareImage';
 import { Heading } from '@/src/shared/components/typography/Heading';
 import { Price } from '@/src/shared/components/typography/Price';
 import { Text } from '@/src/shared/components/typography/Text';
+import { Plus } from 'lucide-react';
 
 interface ProductGridProps {
   products: Product[];
@@ -43,11 +45,14 @@ export default function ProductGrid({ products, onProductClick, onAddToCart }: P
                 placeholderImageUrl={'/placeholder.svg?height=300&width=300'}
               />
 
+              <CompareButton productId={product._id} product={product} />
               <SquareButton
+                className="absolute right-3 top-3"
                 onClick={(e) => {
                   e.stopPropagation();
                   onAddToCart(product);
                 }}
+                icon={<Plus className="h-5 w-5" />}
               />
             </div>
             <div className="p-4">

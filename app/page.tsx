@@ -5,6 +5,8 @@ import { useCartStore } from '@/src/cart/store/cart-store';
 import CategoryHeader from '@/src/categories/components/CategoryHeader';
 import CategoryTabs from '@/src/categories/components/CategoryTabs';
 import { useUniqueCategories } from '@/src/categories/hooks/useUniqueCategories';
+import ComparePanel from '@/src/compare/components/ComparePanel';
+import { useCompareStore } from '@/src/compare/store/compare-store';
 import ProductDetails from '@/src/products/components/ProductDetails';
 import ProductGrid from '@/src/products/components/ProductGrid';
 import useCategoryFilter from '@/src/products/hooks/useCategoryFilter';
@@ -23,6 +25,7 @@ import { useEffect, useMemo, useState } from 'react';
 export default function Home() {
   const { products, loading } = useFetchProducts();
   const { cartItems, addToCart, removeFromCart, isCartOpen, toggleCart } = useCartStore();
+  const { compareItems, removeFromCompare, isCompareOpen, toggleCompare } = useCompareStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -114,6 +117,13 @@ export default function Home() {
               onClose={toggleCart}
               cartItems={cartItems}
               onRemoveFromCart={removeFromCart}
+            />
+
+            <ComparePanel
+              isOpen={isCompareOpen}
+              onClose={toggleCompare}
+              compareItems={compareItems}
+              onRemoveFromCompare={removeFromCompare}
             />
 
             {selectedProduct && (

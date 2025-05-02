@@ -51,6 +51,7 @@ pnpm dev
 ```
 src/
 ├── cart/         # Shopping cart related components and logic
+├── compare/      # Compare products related components and logic
 ├── products/     # Product listing and details components
 ├── categories/   # Category management components
 └── shared/       # Shared components and utilities
